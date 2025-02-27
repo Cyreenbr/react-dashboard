@@ -1,4 +1,4 @@
-import { React, useEffect } from "react";
+import { React, useEffect, useState } from "react";
 import {
   MapContainer,
   TileLayer,
@@ -32,6 +32,8 @@ const TunisiaBounds = () => {
 const center = [34.0, 9.0];
 
 export default function TunisiaMap() {
+  const [selectedZone, setSelectedZone] = useState(null);
+
   return (
     <MapContainer
       center={center}
@@ -42,9 +44,10 @@ export default function TunisiaMap() {
         url="https://api.maptiler.com/maps/basic-v2/256/{z}/{x}/{y}.png?key=O2OzrscKVfJBI8ZwtLeK"
         attribution='<a href="https://www.maptiler.com/copyright/" target="_blank">&copy; MapTiler</a> <a href="https://www.openstreetmap.org/copyright" target="_blank">&copy; OpenStreetMap contributors</a>'
       />
+
       {tunisiaData.features.map((state, index) => {
         const { type, coordinates } = state.geometry;
-        const { gouv_fr, del_fr, del_ar } = state.properties;
+        const { gouv_fr, del_fr } = state.properties;
 
         const positions =
           type === "MultiPolygon"
@@ -57,43 +60,34 @@ export default function TunisiaMap() {
           <Polygon
             key={index}
             pathOptions={{
-              fillColor: "#FDBD3C",
+              fillColor: selectedZone === index ? "red" : "#FDBD3C", // Change color if selected
               fillOpacity: 0.7,
               weight: 2,
               opacity: 1,
               dashArray: 3,
-              color: "white",
+              color: selectedZone === index ? "black" : "white",
             }}
             positions={positions}
             eventHandlers={{
               mouseover: (e) => {
                 e.target.setStyle({
-                  fillOpacity: 5,
+                  fillOpacity: 1,
                   weight: 5,
                   color: "yellow",
                 });
               },
               mouseout: (e) => {
-                e.target.setStyle({
-                  fillColor: "#FDBD3C",
-                  fillOpacity: 0.7,
-                  weight: 2,
-                  opacity: 1,
-                  dashArray: 3,
-                  color: "white",
-                });
-              },
-              click: (e) => {
-                console.log(`Clicked on: ${del_ar}`);
-
-                // Reset style after click to remove black border
-                setTimeout(() => {
+                if (selectedZone !== index) {
                   e.target.setStyle({
-                    fillOpacity: 5,
-                    weight: 5,
-                    color: "yellow",
+                    fillOpacity: 0.7,
+                    weight: 2,
+                    color: "white",
                   });
-                }, 1000);
+                }
+              },
+              click: () => {
+                setSelectedZone(index);
+                console.log(`Clicked on: ${del_fr}`);
               },
             }}
           >
