@@ -31,7 +31,7 @@ const TunisiaBounds = () => {
 
 const center = [34.0, 9.0];
 
-export default function TunisiaMap() {
+export default function TunisiaMap({ onZoneClick }) {
   const [selectedZone, setSelectedZone] = useState(null);
 
   return (
@@ -47,7 +47,7 @@ export default function TunisiaMap() {
 
       {tunisiaData.features.map((state, index) => {
         const { type, coordinates } = state.geometry;
-        const { gouv_fr, del_fr } = state.properties;
+        const { gouv_fr, del_fr, del_ar } = state.properties;
 
         const positions =
           type === "MultiPolygon"
@@ -87,11 +87,12 @@ export default function TunisiaMap() {
               },
               click: () => {
                 setSelectedZone(index);
-                console.log(`Clicked on: ${del_fr}`);
+                onZoneClick(del_ar);
+                console.log(`Clicked on: ${del_ar}`);
               },
             }}
           >
-            <Tooltip sticky>{`${del_fr} (${gouv_fr})`}</Tooltip>
+            <Tooltip sticky>{`${del_ar} (${gouv_fr})`}</Tooltip>
           </Polygon>
         );
       })}
